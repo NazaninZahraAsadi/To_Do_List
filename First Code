@@ -1,0 +1,37 @@
+planner = {}
+
+
+def add_task(name, difficulty):
+    planner[name] = {"difficulty": difficulty}
+    print(f"Task '{name}' with difficulty {difficulty} has been added.")
+
+
+for i in range(5):
+    name = input(f"Enter the name of task #{i + 1}: ")
+
+    while True:
+        try:
+            diff = int(input(f"Enter the difficulty of task '{name}' (1 to 5): "))
+
+            if 1 <= diff <= 5:
+                break
+            else:
+                print("Please enter a number between 1 and 5.")
+
+        except ValueError:
+            print("Error! Please enter a number, not letters.")
+
+    add_task(name, diff)
+
+
+sorted_tasks = sorted(
+    planner.items(),
+    key=lambda x: x[1]["difficulty"],
+    reverse=True
+)
+
+
+print("\n--- Prioritized Task List (Hardest First) ---")
+
+for task in sorted_tasks:
+    print(f"Task: {task[0]} | Difficulty: {task[1]['difficulty']}")
