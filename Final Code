@@ -396,4 +396,4 @@ while True:
         break
 
     else:
-        print("\nInvalid option. Please choose a number from 1 to 8.")
+        print("\nInvalid option. Please choose a number from 1 to 8.") 
