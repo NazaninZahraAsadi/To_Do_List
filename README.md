@@ -2,9 +2,9 @@
 
 A simple yet fully functional task management application built with Python.
 
-About the Project
+#About the Project
 
-Task Planner started as a small Python project I created while I was learning how to work with dictionaries.
+To_Do_Lust started as a small Python project I created while I was learning how to work with dictionaries.
 
 The first version was very simple: it allowed the user to enter a few tasks, assign a difficulty level to each one, and sort them from hardest to easiest.
 
@@ -12,7 +12,7 @@ As I continued learning Python, I decided to return to this old project and deve
 
 The result is a more complete task management application with task prioritization, categories, statistics, search, editing, completion tracking, and persistent data storage.
 
-Features
+#Features
 
 - Add new tasks
 - Set task difficulty from 1 to 5
@@ -28,9 +28,9 @@ Features
 - Load saved tasks when the program starts
 - Validate user input
 
-Project Evolution
+#Project Evolution
 
-The project began with a much smaller version called "planner_first_code.py".
+The project began with a much smaller version called "first_code.py".
 
 The original version focused mainly on practicing:
 
@@ -43,9 +43,9 @@ The project was later expanded into "planner.py" with additional Python concepts
 
 This project represents the evolution of one of my early Python projects as my programming skills developed.
 
-Files
+#Files
 
-"planner.py"
+"to_do_list.py"
 
 The final and fully developed version of the Task Planner.
 
@@ -57,13 +57,13 @@ The original version of the project, created while I was first learning how to u
 
 Stores the tasks created by the user so that they are not lost when the program is closed.
 
-Requirements
+#Requirements
 
 - Python 3.x
 
 No external libraries are required.
 
-How to Run
+#How to Run
 
 Clone the repository or download the project files.
 
@@ -73,7 +73,7 @@ python planner.py
 
 The program will create "tasks.json" automatically when tasks are saved.
 
-Example
+#Example
 
 ==============================
          TASK PLANNER
@@ -99,6 +99,6 @@ Technologies
 - JSON
 - File Handling
 
-Project Status
+#Project Status
 
 Completed — this is the final version of the current project.
