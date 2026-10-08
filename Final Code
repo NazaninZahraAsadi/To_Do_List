@@ -1,0 +1,399 @@
+import json
+import os
+
+
+FILE_NAME = "tasks.json"
+
+planner = {}
+
+
+# -----------------------------
+# File Management
+# -----------------------------
+
+def load_tasks():
+    global planner
+
+    if os.path.exists(FILE_NAME):
+        try:
+            with open(FILE_NAME, "r") as file:
+                planner = json.load(file)
+
+        except (json.JSONDecodeError, OSError):
+            print("Could not load saved tasks. Starting with an empty planner.")
+            planner = {}
+
+
+def save_tasks():
+    try:
+        with open(FILE_NAME, "w") as file:
+            json.dump(planner, file, indent=4)
+
+    except OSError:
+        print("Could not save the tasks.")
+
+
+# -----------------------------
+# Input Validation
+# -----------------------------
+
+def get_difficulty():
+    while True:
+        try:
+            difficulty = int(input("Enter difficulty (1-5): "))
+
+            if 1 <= difficulty <= 5:
+                return difficulty
+
+            print("Please enter a number between 1 and 5.")
+
+        except ValueError:
+            print("Please enter a valid number.")
+
+
+def get_priority():
+    while True:
+        priority = input(
+            "Enter priority (Low / Medium / High): "
+        ).strip().capitalize()
+
+        if priority in ["Low", "Medium", "High"]:
+            return priority
+
+        print("Please choose Low, Medium, or High.")
+
+
+# -----------------------------
+# Task Management
+# -----------------------------
+
+def add_task():
+    name = input("Enter task name: ").strip()
+
+    if not name:
+        print("Task name cannot be empty.")
+        return
+
+    if name in planner:
+        print("A task with this name already exists.")
+        return
+
+    difficulty = get_difficulty()
+    priority = get_priority()
+    category = input("Enter category: ").strip()
+
+    if not category:
+        category = "General"
+
+    planner[name] = {
+        "difficulty": difficulty,
+        "priority": priority,
+        "category": category,
+        "completed": False
+    }
+
+    save_tasks()
+
+    print(f"\nTask '{name}' has been added successfully.")
+
+
+def show_tasks():
+    if not planner:
+        print("\nThere are no tasks yet.")
+        return
+
+    priority_order = {
+        "High": 3,
+        "Medium": 2,
+        "Low": 1
+    }
+
+    sorted_tasks = sorted(
+        planner.items(),
+        key=lambda item: (
+            item[1]["completed"],
+            -priority_order[item[1]["priority"]],
+            -item[1]["difficulty"]
+        )
+    )
+
+    print("\n========== TASK LIST ==========")
+
+    for name, details in sorted_tasks:
+
+        status = "Completed" if details["completed"] else "Not completed"
+
+        print(f"""
+Task: {name}
+Difficulty: {details["difficulty"]}/5
+Priority: {details["priority"]}
+Category: {details["category"]}
+Status: {status}
+------------------------------""")
+
+
+def complete_task():
+    if not planner:
+        print("\nThere are no tasks yet.")
+        return
+
+    name = input("Enter the name of the completed task: ").strip()
+
+    if name not in planner:
+        print("Task not found.")
+        return
+
+    if planner[name]["completed"]:
+        print("This task is already completed.")
+        return
+
+    planner[name]["completed"] = True
+    save_tasks()
+
+    print(f"Task '{name}' has been marked as completed.")
+
+
+def delete_task():
+    if not planner:
+        print("\nThere are no tasks yet.")
+        return
+
+    name = input("Enter the name of the task you want to delete: ").strip()
+
+    if name not in planner:
+        print("Task not found.")
+        return
+
+    del planner[name]
+    save_tasks()
+
+    print(f"Task '{name}' has been deleted.")
+
+
+def edit_task():
+    if not planner:
+        print("\nThere are no tasks yet.")
+        return
+
+    name = input("Enter the name of the task you want to edit: ").strip()
+
+    if name not in planner:
+        print("Task not found.")
+        return
+
+    task = planner[name]
+
+    print("\nLeave the input empty to keep the current value.")
+
+    new_name = input(
+        f"Task name [{name}]: "
+    ).strip()
+
+    if new_name:
+        if new_name != name and new_name in planner:
+            print("A task with this name already exists.")
+            return
+
+        planner[new_name] = planner.pop(name)
+        name = new_name
+        task = planner[name]
+
+    new_difficulty = input(
+        f"Difficulty [{task['difficulty']}]: "
+    ).strip()
+
+    if new_difficulty:
+        try:
+            new_difficulty = int(new_difficulty)
+
+            if 1 <= new_difficulty <= 5:
+                task["difficulty"] = new_difficulty
+            else:
+                print("Difficulty must be between 1 and 5.")
+                return
+
+        except ValueError:
+            print("Please enter a valid number.")
+            return
+
+    new_priority = input(
+        f"Priority [{task['priority']}]: "
+    ).strip().capitalize()
+
+    if new_priority:
+        if new_priority not in ["Low", "Medium", "High"]:
+            print("Invalid priority.")
+            return
+
+        task["priority"] = new_priority
+
+    new_category = input(
+        f"Category [{task['category']}]: "
+    ).strip()
+
+    if new_category:
+        task["category"] = new_category
+
+    save_tasks()
+
+    print(f"Task '{name}' has been updated successfully.")
+
+
+# -----------------------------
+# Search
+# -----------------------------
+
+def search_tasks():
+    if not planner:
+        print("\nThere are no tasks yet.")
+        return
+
+    keyword = input(
+        "Enter a task name or category to search: "
+    ).strip().lower()
+
+    results = []
+
+    for name, details in planner.items():
+
+        if (
+            keyword in name.lower()
+            or keyword in details["category"].lower()
+        ):
+            results.append((name, details))
+
+    if not results:
+        print("No matching tasks were found.")
+        return
+
+    print("\n========== SEARCH RESULTS ==========")
+
+    for name, details in results:
+
+        status = "Completed" if details["completed"] else "Not completed"
+
+        print(
+            f"Task: {name} | "
+            f"Difficulty: {details['difficulty']}/5 | "
+            f"Priority: {details['priority']} | "
+            f"Category: {details['category']} | "
+            f"Status: {status}"
+        )
+
+
+# -----------------------------
+# Statistics
+# -----------------------------
+
+def show_statistics():
+    if not planner:
+        print("\nThere are no tasks to analyze.")
+        return
+
+    total_tasks = len(planner)
+
+    completed_tasks = sum(
+        task["completed"]
+        for task in planner.values()
+    )
+
+    remaining_tasks = total_tasks - completed_tasks
+
+    total_difficulty = sum(
+        task["difficulty"]
+        for task in planner.values()
+    )
+
+    average_difficulty = total_difficulty / total_tasks
+
+    high_priority = sum(
+        task["priority"] == "High"
+        for task in planner.values()
+    )
+
+    medium_priority = sum(
+        task["priority"] == "Medium"
+        for task in planner.values()
+    )
+
+    low_priority = sum(
+        task["priority"] == "Low"
+        for task in planner.values()
+    )
+
+    print("\n========== STATISTICS ==========")
+
+    print(f"Total tasks: {total_tasks}")
+    print(f"Completed tasks: {completed_tasks}")
+    print(f"Remaining tasks: {remaining_tasks}")
+    print(f"Average difficulty: {average_difficulty:.1f}/5")
+
+    print("\nPriority breakdown:")
+    print(f"High: {high_priority}")
+    print(f"Medium: {medium_priority}")
+    print(f"Low: {low_priority}")
+
+
+# -----------------------------
+# Planner Menu
+# -----------------------------
+
+def show_menu():
+    print("""
+==============================
+         TASK PLANNER
+==============================
+
+1. Add task
+2. View tasks
+3. Complete task
+4. Edit task
+5. Delete task
+6. Search tasks
+7. Show statistics
+8. Exit
+""")
+
+
+# -----------------------------
+# Main Program
+# -----------------------------
+
+load_tasks()
+
+print("Welcome to Task Planner!")
+
+while True:
+
+    show_menu()
+
+    choice = input("Choose an option: ").strip()
+
+    if choice == "1":
+        add_task()
+
+    elif choice == "2":
+        show_tasks()
+
+    elif choice == "3":
+        complete_task()
+
+    elif choice == "4":
+        edit_task()
+
+    elif choice == "5":
+        delete_task()
+
+    elif choice == "6":
+        search_tasks()
+
+    elif choice == "7":
+        show_statistics()
+
+    elif choice == "8":
+        save_tasks()
+        print("\nThank you for using Task Planner!")
+        break
+
+    else:
+        print("\nInvalid option. Please choose a number from 1 to 8.")
